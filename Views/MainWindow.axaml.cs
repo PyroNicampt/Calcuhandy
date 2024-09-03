@@ -10,24 +10,32 @@ namespace Calcuhandy.Views {
         public MainWindow() {
             InitializeComponent();
             calcInput.TextChanged += new System.EventHandler<TextChangedEventArgs>(UpdateResult);
-            PixelRect screenBound = Screens?.Primary?.Bounds ?? new PixelRect(0, 0, 600, 800);
-            Width = screenBound.Width/2;
-            Height = 200;
-            Position = screenBound.Center - new PixelPoint((int)Width/2, (int)Height/2 + (int)(screenBound.Height*0.15));
+            calcInput.KeyDown += new System.EventHandler<KeyEventArgs>(InputHotkeys);
+            Loaded += HideWindow;
         }
 
-        public void ClearInputBox(object source, RoutedEventArgs args) {
+        public void ClearInputBox(object? source, RoutedEventArgs args) {
             calcInput.Text = "";
-        }
-        public void ShowHistory(object source, RoutedEventArgs args) {
-            
+            calcInput.Focus();
         }
         public void HideWindow(object? source, EventArgs args) {
             Hide();
+            ProcessOptimizer.Rest();
         }
-
         public void UpdateResult(object? source, TextChangedEventArgs args) {
             calcOutput.Text = EquationParser.ParseText(calcInput.Text);
+            if(calcOutput.Text.ToLower().Contains("error")) calcOutput.Opacity = 0.25;
+            else calcOutput.Opacity = 1.0;
+        }
+        public void InputHotkeys(object? source, KeyEventArgs args) {
+            if(args.Key == Key.Enter) {
+                if(args.KeyModifiers == KeyModifiers.Control) {
+                    Clipboard?.SetTextAsync(calcOutput.Text);
+                }else if(args.KeyModifiers == KeyModifiers.None) {
+                    Clipboard?.SetTextAsync(calcOutput.Text);
+                    HideWindow(source, args);
+                }
+            }
         }
     }
 }

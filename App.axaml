@@ -10,8 +10,12 @@
     </Application.DataTemplates>
 
     <Application.Styles>
-        <FluentTheme />
+        <FluentTheme DensityStyle="Compact"/>
     </Application.Styles>
+
+	<Application.Resources>
+		<FontFamily x:Key="ChakraPetch">Assets/ChakraPetch-SemiBold.ttf</FontFamily>
+	</Application.Resources>
 
 	<TrayIcon.Icons>
 		<TrayIcons>
