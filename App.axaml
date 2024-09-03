@@ -19,7 +19,7 @@
 
 	<TrayIcon.Icons>
 		<TrayIcons>
-			<TrayIcon Icon="Assets/Calcuhandy.ico" Clicked="ShowApp" >
+			<TrayIcon Icon="Assets/Calcuhandy.ico" Clicked="ShowApp" ToolTipText="Calcuhandy">
 				<TrayIcon.Menu>
 					<NativeMenu>
 						<NativeMenuItem Click="CloseApp" Header="Exit"/>

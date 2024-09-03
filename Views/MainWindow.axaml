@@ -16,7 +16,9 @@
 		ExtendClientAreaTitleBarHeightHint="0"
 		FontFamily="{StaticResource ChakraPetch}"
 		FontSize="16"
-		SizeToContent="Height"
+		SizeToContent="WidthAndHeight"
+		MaxWidth="800"
+		MinWidth="200"
 		>
 
 	<Design.DataContext>

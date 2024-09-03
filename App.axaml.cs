@@ -67,7 +67,7 @@ namespace Calcuhandy {
             //PixelPoint cursorPos = new(ProgramHotkeys.manager.mouseX, ProgramHotkeys.manager.mouseY);
             PixelPoint cursorPos = CursorUtils.GetCursorPosition();
             PixelRect screenBounds = window.Screens.ScreenFromPoint(cursorPos)?.Bounds ?? new PixelRect(0, 0, 800, 600);
-            window.Width = screenBounds.Width * 0.5;
+            //window.Width = screenBounds.Width * 0.5;
 
             double correctX = cursorPos.X - window.Width * Settings.popupOffsetPercentX;
             if(correctX < screenBounds.X + Settings.popupMargin) correctX = screenBounds.X + Settings.popupMargin;
