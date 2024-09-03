@@ -1,5 +1,5 @@
 # Calcuhandy
- A desktop equation evaluator, inspired by the live equation parsing in most browser consoles, Blender's input field python evaluator, and the Quick Search's calculator functionality in the game Satisfactory.
+ A desktop equation evaluator powered by [Avalonia](https://github.com/avaloniaui/avalonia), inspired by the live equation parsing in most browser consoles and the Quick Search's calculator functionality in the game [Satisfactory](https://www.satisfactorygame.com/).
 
 ## Compiling
 Requires [.NET CLI](https://learn.microsoft.com/en-us/dotnet/core/install/)
