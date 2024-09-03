@@ -21,17 +21,18 @@ namespace Calcuhandy {
             new Token(",", Token.Type.Special),
             new Token("=", Token.Type.Special),
             // Functions //
-            new Token("sin", 1, Token.Type.Function),
-            new Token("cos", 1, Token.Type.Function),
-            new Token("tan", 1, Token.Type.Function),
-            new Token("asin", 1, Token.Type.Function),
+            new Token("abs", 1, Token.Type.Function),
             new Token("acos", 1, Token.Type.Function),
-            new Token("atan", 1, Token.Type.Function),
+            new Token("asin", 1, Token.Type.Function),
             new Token("atan2", 2, Token.Type.Function),
-            new Token("min", 2, Token.Type.Function),
-            new Token("max", 2, Token.Type.Function),
-            new Token("floor", 1, Token.Type.Function),
+            new Token("atan", 1, Token.Type.Function),
             new Token("ceil", 1, Token.Type.Function),
+            new Token("cos", 1, Token.Type.Function),
+            new Token("floor", 1, Token.Type.Function),
+            new Token("max", 2, Token.Type.Function),
+            new Token("min", 2, Token.Type.Function),
+            new Token("sin", 1, Token.Type.Function),
+            new Token("tan", 1, Token.Type.Function),
             // Constants //
             new Token("pi", Token.Type.Constant),
             new Token("tau", Token.Type.Constant),
@@ -217,35 +218,41 @@ namespace Calcuhandy {
                         break;
                     case Token.Type.Function:
                         switch(elements[i].value) {
-                            case "sin":
-                                mainStack.Push(Math.Sin(argStack.Pop()));
-                                break;
-                            case "cos":
-                                mainStack.Push(Math.Cos(argStack.Pop()));
-                                break;
-                            case "tan":
-                                mainStack.Push(Math.Tan(argStack.Pop()));
-                                break;
-                            case "asin":
-                                mainStack.Push(Math.Asin(argStack.Pop()));
+                            case "abs":
+                                mainStack.Push(Math.Abs(argStack.Pop()));
                                 break;
                             case "acos":
                                 mainStack.Push(Math.Acos(argStack.Pop()));
                                 break;
+                            case "asin":
+                                mainStack.Push(Math.Asin(argStack.Pop()));
+                                break;
+                            case "atan2":
+                                mainStack.Push(Math.Atan2(argStack.Pop(), argStack.Pop()));
+                                break;
                             case "atan":
                                 mainStack.Push(Math.Atan(argStack.Pop()));
                                 break;
-                            case "min":
-                                mainStack.Push(Math.Min(argStack.Pop(), argStack.Pop()));
+                            case "ceil":
+                                mainStack.Push(Math.Ceiling(argStack.Pop()));
                                 break;
-                            case "max":
-                                mainStack.Push(Math.Max(argStack.Pop(), argStack.Pop()));
+                            case "cos":
+                                mainStack.Push(Math.Cos(argStack.Pop()));
                                 break;
                             case "floor":
                                 mainStack.Push(Math.Floor(argStack.Pop()));
                                 break;
-                            case "ceil":
-                                mainStack.Push(Math.Ceiling(argStack.Pop()));
+                            case "max":
+                                mainStack.Push(Math.Max(argStack.Pop(), argStack.Pop()));
+                                break;
+                            case "min":
+                                mainStack.Push(Math.Min(argStack.Pop(), argStack.Pop()));
+                                break;
+                            case "sin":
+                                mainStack.Push(Math.Sin(argStack.Pop()));
+                                break;
+                            case "tan":
+                                mainStack.Push(Math.Tan(argStack.Pop()));
                                 break;
                         }
                         break;
@@ -255,7 +262,9 @@ namespace Calcuhandy {
                 FlagError("Nothing left in stack");
                 return 0.0;
             }
-            return mainStack.Pop();
+            double result = mainStack.Pop();
+            if(Math.Abs(result) < 0.00000000000001) return 0.0;
+            return result;
         }
         private static string MatchPrefix(string input, string[] value) {
             for(int i=0; i<value.Length; i++) {
