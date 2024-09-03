@@ -36,6 +36,9 @@ namespace Calcuhandy.Views {
                     HideWindow(source, args);
                 }
             }
+            if(args.Key == Key.D && args.KeyModifiers == KeyModifiers.Control) {
+                ClearInputBox(source, args);
+            }
         }
     }
 }

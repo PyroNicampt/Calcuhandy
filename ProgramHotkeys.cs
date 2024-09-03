@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using SharpHook;
@@ -12,7 +13,6 @@ namespace Calcuhandy {
             get => Init();
         }
         private static ProgramHotkeys? _main;
-
         private enum HotkeyAction { Open, Hide };
         public event EventHandler HotkeyOpen = delegate { };
         public event EventHandler HotkeyHide = delegate { };
@@ -31,7 +31,7 @@ namespace Calcuhandy {
             return _main;
         }
         public ProgramHotkeys() {
-            hook = new(runAsyncOnBackgroundThread: true);
+            hook = new(runAsyncOnBackgroundThread: true, globalHookType:GlobalHookType.Keyboard);
             hook.KeyPressed += new EventHandler<KeyboardHookEventArgs>(KeyDown);
             hook.KeyReleased += new EventHandler<KeyboardHookEventArgs>(KeyUp);
             hook.RunAsync();
@@ -40,19 +40,19 @@ namespace Calcuhandy {
             switch(args.Data.KeyCode) {
                 case SharpHook.Native.KeyCode.VcLeftControl:
                 case SharpHook.Native.KeyCode.VcRightControl:
-                    KeyMod_Ctrl++;
+                    KeyMod_Ctrl = Math.Min(KeyMod_Ctrl + 1, 1);
                     break;
                 case SharpHook.Native.KeyCode.VcLeftShift:
                 case SharpHook.Native.KeyCode.VcRightShift:
-                    KeyMod_Shift++;
+                    KeyMod_Shift = Math.Min(KeyMod_Shift + 1, 1);
                     break;
                 case SharpHook.Native.KeyCode.VcLeftAlt:
                 case SharpHook.Native.KeyCode.VcRightAlt:
-                    KeyMod_Alt++;
+                    KeyMod_Alt = Math.Min(KeyMod_Alt + 1, 1);
                     break;
                 case SharpHook.Native.KeyCode.VcLeftMeta:
                 case SharpHook.Native.KeyCode.VcRightMeta:
-                    KeyMod_Meta++;
+                    KeyMod_Meta = Math.Min(KeyMod_Meta + 1, 1);
                     break;
                 case SharpHook.Native.KeyCode.VcC:
                     if(CheckKeyMods(KeyMods.Meta)) HotkeyTriggered(HotkeyAction.Open);
@@ -66,19 +66,19 @@ namespace Calcuhandy {
             switch(args.Data.KeyCode) {
                 case SharpHook.Native.KeyCode.VcLeftControl:
                 case SharpHook.Native.KeyCode.VcRightControl:
-                    KeyMod_Ctrl--;
+                    KeyMod_Ctrl = Math.Max(KeyMod_Ctrl - 1, 0);
                     break;
                 case SharpHook.Native.KeyCode.VcLeftShift:
                 case SharpHook.Native.KeyCode.VcRightShift:
-                    KeyMod_Shift--;
+                    KeyMod_Shift = Math.Max(KeyMod_Shift - 1, 0);
                     break;
                 case SharpHook.Native.KeyCode.VcLeftAlt:
                 case SharpHook.Native.KeyCode.VcRightAlt:
-                    KeyMod_Alt--;
+                    KeyMod_Alt = Math.Max(KeyMod_Alt - 1, 0);
                     break;
                 case SharpHook.Native.KeyCode.VcLeftMeta:
                 case SharpHook.Native.KeyCode.VcRightMeta:
-                    KeyMod_Meta--;
+                    KeyMod_Meta = Math.Max(KeyMod_Meta - 1, 0);
                     break;
             }
         }

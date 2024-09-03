@@ -57,6 +57,7 @@ namespace Calcuhandy {
 
                 if(!mainWindow.IsEffectivelyVisible) {
                     mainWindow.Show();
+                    mainWindow.Focus();
                     mainWindow.GetControl<TextBox>("calcInput")?.Focus();
                 }
             });
