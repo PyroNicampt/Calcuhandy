@@ -13,7 +13,7 @@ var zipPath = $"./releases/Calcuhandy-{settings.Runtime}-{settings.Configuration
 //////////////////////////////////////////////////////////////////////
 
 Task("Clean")
-    .WithCriteria(c => HasArgument("rebuild"))
+    //.WithCriteria(c => HasArgument("rebuild"))
     .Does(() =>
 {
     CleanDirectory($"./bin/{settings.Configuration}");
@@ -56,6 +56,16 @@ Task("Debug")
         //Runtime = settings.Runtime,
         //Framework = settings.Framework,
         NoBuild = true,
+    });
+});
+
+Task("Test")
+    .IsDependentOn("Clean")
+    .Does(() =>
+{
+    DotNetTest("./CalcuhandyTests", new DotNetTestSettings
+    {
+        //NoBuild = true,
     });
 });
 

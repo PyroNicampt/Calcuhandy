@@ -7,14 +7,19 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <PublishSingleFile>true</PublishSingleFile>
+    <ApplicationIcon>Assets\Calcuhandy.ico</ApplicationIcon>
     <!--PublishTrimmed>true</PublishTrimmed>
     <TrimMode>partial</TrimMode>
     <PublishReadyToRun>false</PublishReadyToRun-->
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="Assets\ChakraPetch-Medium.ttf" />
-    <None Remove="Assets\ChakraPetch-Regular.ttf" />
-    <None Remove="Assets\ChakraPetch-SemiBold.ttf" />
+    <AvaloniaXaml Remove="CalcuhandyTests/**" />
+    <Compile Remove="CalcuhandyTests/**" />
+    <EmbeddedResource Remove="CalcuhandyTests/**" />
+    <None Remove="CalcuhandyTests/**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Assets/ChakraPetch-SemiBold.ttf" />
   </ItemGroup>
 
   <ItemGroup>
@@ -29,6 +34,10 @@
     
     <AvaloniaResource Include="Assets/Calcuhandy.ico" />
     
-    <AvaloniaResource Include="Assets\ChakraPetch-SemiBold.ttf" />
+    <AvaloniaResource Include="Assets/ChakraPetch-SemiBold.ttf" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\Calcuhandy.ico" />
   </ItemGroup>
 </Project>
