@@ -5,15 +5,18 @@ using System.Text.RegularExpressions;
 
 namespace Calcuhandy {
     public static class EquationParser {
-        public static Token inverseToken = new Token("inverse", 1, Token.Type.Operator, 4);
+        public static Token inverseToken = new Token("inverse", Token.Type.Operator, 1, priority:4);
+        /// <summary>
+        /// Tokens higher up the list will match first, so atan2 needs to be before atan, etc.
+        /// </summary>
         public static Token[] globalTokens = {
             // Operators //
-            new Token("+", 2, Token.Type.Operator, 1),
-            new Token("-", 2, Token.Type.Operator, 1),
-            new Token("*", 2, Token.Type.Operator, 2),
-            new Token("/", 2, Token.Type.Operator, 2),
-            new Token("%", 2, Token.Type.Operator, 2),
-            new Token("^", 2, Token.Type.Operator, 3, false),
+            new Token("+", Token.Type.Operator, 2, priority:1),
+            new Token("-", Token.Type.Operator, 2, priority:1),
+            new Token("*", Token.Type.Operator, 2, priority:2),
+            new Token("/", Token.Type.Operator, 2, priority:2),
+            new Token("%", Token.Type.Operator, 2, priority:2),
+            new Token("^", Token.Type.Operator, 2, priority:3, leftAssociative:false),
             inverseToken,
             // Special //
             new Token("(", Token.Type.Special),
@@ -21,41 +24,71 @@ namespace Calcuhandy {
             new Token(",", Token.Type.Special),
             new Token("=", Token.Type.Special),
             // Functions //
-            new Token("sin", 1, Token.Type.Function),
-            new Token("cos", 1, Token.Type.Function),
-            new Token("tan", 1, Token.Type.Function),
-            new Token("asin", 1, Token.Type.Function),
-            new Token("acos", 1, Token.Type.Function),
-            new Token("atan", 1, Token.Type.Function),
-            new Token("atan2", 2, Token.Type.Function),
-            new Token("min", 2, Token.Type.Function),
-            new Token("max", 2, Token.Type.Function),
-            new Token("floor", 1, Token.Type.Function),
-            new Token("ceil", 1, Token.Type.Function),
+            new Token("abs", Token.Type.Function, 1),
+            new Token("acosh", Token.Type.Function, 1),
+            new Token("acos", Token.Type.Function, 1),
+            new Token("asinh", Token.Type.Function, 1),
+            new Token("asin", Token.Type.Function, 1),
+            new Token("atan2", Token.Type.Function, 2),
+            new Token("atanh", Token.Type.Function, 1),
+            new Token("atan", Token.Type.Function, 1),
+            new Token("cbrt", Token.Type.Function, 1),
+            new Token("ceil", Token.Type.Function, 1),
+            new Token("clamp", Token.Type.Function, 3),
+            new Token("cosh", Token.Type.Function, 1),
+            new Token("cos", Token.Type.Function, 1),
+            new Token("floor", Token.Type.Function, 1),
+
+            new Token("log10e", Token.Type.Constant, constantValue:Math.Log10(Math.E)),
+            new Token("log2e", Token.Type.Constant, constantValue:Math.Log2(Math.E)),
+
+            new Token("log10", Token.Type.Function, 1),
+            new Token("log2", Token.Type.Function, 1),
+            new Token("log", Token.Type.Function, 1),
+            new Token("max", Token.Type.Function, 2),
+            new Token("min", Token.Type.Function, 2),
+            new Token("mod", Token.Type.Function, 2),
+            new Token("round", Token.Type.Function, 1),
+            new Token("sign", Token.Type.Function, 1),
+            new Token("sinh", Token.Type.Function, 1),
+            new Token("sin", Token.Type.Function, 1),
+            new Token("sqrt", Token.Type.Function, 1),
+            new Token("tanh", Token.Type.Function, 1),
+            new Token("tan", Token.Type.Function, 1),
+            new Token("trunc", Token.Type.Function, 1),
             // Constants //
-            new Token("pi", Token.Type.Constant),
-            new Token("tau", Token.Type.Constant),
-            new Token("e", Token.Type.Constant),
+            new Token("deg2rad", Token.Type.Constant, constantValue:Math.Tau/360.0),
+            new Token("rad2deg", Token.Type.Constant, constantValue:360.0/Math.Tau),
+            new Token("pi", Token.Type.Constant, constantValue:Math.PI),
+            new Token("tau", Token.Type.Constant, constantValue:Math.Tau),
+            new Token("phi", Token.Type.Constant, constantValue:(1+Math.Sqrt(5))/2),
+            new Token("e", Token.Type.Constant, constantValue:Math.E),
+            new Token("ln10", Token.Type.Constant, constantValue:Math.Log(10.0)),
+            new Token("ln2", Token.Type.Constant, constantValue:Math.Log(2.0)),
+            new Token("nan", Token.Type.Constant, constantValue:double.NaN),
+            new Token("infinity", Token.Type.Constant, constantValue:double.PositiveInfinity),
         };
 
         static Regex whitespaceRegex = new Regex("\\s");
         static Queue<String> errorQueue = new();
         public static string ParseText(string? input) {
-            if(input == null) return "Null Input";
-            if(input == "") return "0";
-            errorQueue.Clear();
-
             try {
-                List<Token> elements = Tokenize(input);
-                SyntaxCleaner(ref elements);
-                Postfix(ref elements);
-
+                string result = ParseToDouble(input).ToString();
+                if(input == null || input == "") result = "";
                 //return errorQueue.Count > 0 ? errorQueue.Peek() : string.Join(" ", elements);
-                string result = Evaluate(elements).ToString();
                 return errorQueue.Count > 0 ? errorQueue.Peek() : result;
-            }catch(Exception e) {
+            } catch(Exception e) {
                 return $"Program Error: {e}";
             }
+        }
+        public static double ParseToDouble(string? input) {
+            errorQueue.Clear();
+            if(input == null) return double.NaN;
+
+            List<Token> elements = Tokenize(input.ToLower());
+            SyntaxCleaner(ref elements);
+            Postfix(ref elements);
+            return Evaluate(elements);
         }
         private static List<Token> Tokenize(string input) {
             input = whitespaceRegex.Replace(input, "");
@@ -159,7 +192,6 @@ namespace Calcuhandy {
 
             Stack<double> mainStack = new();
             Stack<double> argStack = new();
-            double register = 0.0;
             for(int i = 0; i < elements.Count; i++) {
                 if(elements[i].argCount > mainStack.Count) {
                     FlagError($"Not enough Arguments for {elements[i].value}");
@@ -174,21 +206,8 @@ namespace Calcuhandy {
                         else FlagError($"Invalid number {elements[i].value}");
                         break;
                     case Token.Type.Constant:
-                        switch(elements[i].value) {
-                            case "pi":
-                                register = Math.PI;
-                                break;
-                            case "tau":
-                                register = Math.Tau;
-                                break;
-                            case "e":
-                                register = Math.E;
-                                break;
-                            default:
-                                FlagError($"Unimplemented const {elements[i].value}");
-                                break;
-                        }
-                        mainStack.Push(register);
+                        if(elements[i].constantValue != 0.0) mainStack.Push(elements[i].constantValue);
+                        else FlagError($"Unimplemented const {elements[i].value}");
                         break;
                     case Token.Type.Operator:
                         switch(elements[i].value) {
@@ -217,35 +236,92 @@ namespace Calcuhandy {
                         break;
                     case Token.Type.Function:
                         switch(elements[i].value) {
-                            case "sin":
-                                mainStack.Push(Math.Sin(argStack.Pop()));
+                            case "abs":
+                                mainStack.Push(Math.Abs(argStack.Pop()));
                                 break;
-                            case "cos":
-                                mainStack.Push(Math.Cos(argStack.Pop()));
-                                break;
-                            case "tan":
-                                mainStack.Push(Math.Tan(argStack.Pop()));
-                                break;
-                            case "asin":
-                                mainStack.Push(Math.Asin(argStack.Pop()));
+                            case "acosh":
+                                mainStack.Push(Math.Acosh(argStack.Pop()));
                                 break;
                             case "acos":
                                 mainStack.Push(Math.Acos(argStack.Pop()));
                                 break;
+                            case "asinh":
+                                mainStack.Push(Math.Asinh(argStack.Pop()));
+                                break;
+                            case "asin":
+                                mainStack.Push(Math.Asin(argStack.Pop()));
+                                break;
+                            case "atan2":
+                                mainStack.Push(Math.Atan2(argStack.Pop(), argStack.Pop()));
+                                break;
+                            case "atanh":
+                                mainStack.Push(Math.Atanh(argStack.Pop()));
+                                break;
                             case "atan":
                                 mainStack.Push(Math.Atan(argStack.Pop()));
                                 break;
-                            case "min":
-                                mainStack.Push(Math.Min(argStack.Pop(), argStack.Pop()));
+                            case "cbrt":
+                                mainStack.Push(Math.Cbrt(argStack.Pop()));
                                 break;
-                            case "max":
-                                mainStack.Push(Math.Max(argStack.Pop(), argStack.Pop()));
+                            case "ceil":
+                                mainStack.Push(Math.Ceiling(argStack.Pop()));
+                                break;
+                            case "clamp":
+                                mainStack.Push(Math.Clamp(argStack.Pop(), argStack.Pop(), argStack.Pop()));
+                                break;
+                            case "cosh":
+                                mainStack.Push(Math.Cosh(argStack.Pop()));
+                                break;
+                            case "cos":
+                                mainStack.Push(Math.Cos(argStack.Pop()));
                                 break;
                             case "floor":
                                 mainStack.Push(Math.Floor(argStack.Pop()));
                                 break;
-                            case "ceil":
-                                mainStack.Push(Math.Ceiling(argStack.Pop()));
+                            case "log10":
+                                mainStack.Push(Math.Log10(argStack.Pop()));
+                                break;
+                            case "log2":
+                                mainStack.Push(Math.Log2(argStack.Pop()));
+                                break;
+                            case "log":
+                                mainStack.Push(Math.Log(argStack.Pop()));
+                                break;
+                            case "max":
+                                mainStack.Push(Math.Max(argStack.Pop(), argStack.Pop()));
+                                break;
+                            case "min":
+                                mainStack.Push(Math.Min(argStack.Pop(), argStack.Pop()));
+                                break;
+                            case "mod":
+                                double a = argStack.Pop();
+                                double b = argStack.Pop();
+                                if(b == 0) mainStack.Push(double.NaN);
+                                else mainStack.Push(a - b * Math.Floor(a / b));
+                                break;
+                            case "round":
+                                mainStack.Push(Math.Round(argStack.Pop()));
+                                break;
+                            case "sign":
+                                mainStack.Push(Math.Sign(argStack.Pop()));
+                                break;
+                            case "sinh":
+                                mainStack.Push(Math.Sinh(argStack.Pop()));
+                                break;
+                            case "sin":
+                                mainStack.Push(Math.Sin(argStack.Pop()));
+                                break;
+                            case "sqrt":
+                                mainStack.Push(Math.Sqrt(argStack.Pop()));
+                                break;
+                            case "tanh":
+                                mainStack.Push(Math.Tanh(argStack.Pop()));
+                                break;
+                            case "tan":
+                                mainStack.Push(Math.Tan(argStack.Pop()));
+                                break;
+                            case "trunc":
+                                mainStack.Push(Math.Truncate(argStack.Pop()));
                                 break;
                         }
                         break;
@@ -255,7 +331,9 @@ namespace Calcuhandy {
                 FlagError("Nothing left in stack");
                 return 0.0;
             }
-            return mainStack.Pop();
+            double result = mainStack.Pop();
+            if(Math.Abs(result) < 0.00000000000001) return 0.0;
+            return result;
         }
         private static string MatchPrefix(string input, string[] value) {
             for(int i=0; i<value.Length; i++) {
@@ -277,58 +355,23 @@ namespace Calcuhandy {
             public String value;
             public enum Type { Number, Operator, Constant, Function, Special };
             public Type type;
-            public int priority = 0;
-            public int argCount = 0;
-            public bool leftAssociative = true;
+            public int priority;
+            public int argCount;
+            public bool leftAssociative;
+            public double constantValue;
 
             public static Token empty = new("", Type.Special);
             public int Length {
                 get => value.Length;
             }
 
-            public Token(string value, Type type) {
+            public Token(string value, Type type, int argCount = 0, byte priority = 0, bool leftAssociative = true, double constantValue = 0.0) {
                 this.value = value;
                 this.type = type;
-            }
-            public Token(string value, Type type, byte priority) {
-                this.value = value;
-                this.type = type;
-                this.priority = priority;
-            }
-            public Token(string value, Type type, bool leftAssociative) {
-                this.value = value;
-                this.type = type;
-                this.leftAssociative = leftAssociative;
-            }
-            public Token(string value, Type type, byte priority, bool leftAssociative) {
-                this.value = value;
-                this.type = type;
+                this.argCount = argCount;
                 this.priority = priority;
                 this.leftAssociative = leftAssociative;
-            }
-            public Token(string value, int argCount, Type type) {
-                this.value = value;
-                this.argCount = argCount;
-                this.type = type;
-            }
-            public Token(string value, int argCount, Type type, byte priority) {
-                this.value = value;
-                this.argCount = argCount;
-                this.type = type;
-                this.priority = priority;
-            }
-            public Token(string value, int argCount, Type type, bool leftAssociative) {
-                this.value = value;
-                this.argCount = argCount;
-                this.type = type;
-                this.leftAssociative = leftAssociative;
-            }
-            public Token(string value, int argCount, Type type, byte priority, bool leftAssociative) {
-                this.value = value;
-                this.argCount = argCount;
-                this.type = type;
-                this.priority = priority;
-                this.leftAssociative = leftAssociative;
+                this.constantValue = constantValue;
             }
         public static bool operator ==(Token a, Token b) =>
                 a.value == b.value && a.type == b.type;
