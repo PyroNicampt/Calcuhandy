@@ -18,6 +18,7 @@ namespace Calcuhandy {
         public event EventHandler HotkeyHide = delegate { };
 
         private TaskPoolGlobalHook hook;
+        private EventSimulator sim;
         private enum KeyMods {
             None = 0, Ctrl = 1, Alt = 2, Shift = 4, Meta = 8
         };
@@ -32,6 +33,7 @@ namespace Calcuhandy {
         }
         public ProgramHotkeys() {
             hook = new(runAsyncOnBackgroundThread: true, globalHookType:GlobalHookType.Keyboard);
+            sim = new();
             hook.KeyPressed += new EventHandler<KeyboardHookEventArgs>(KeyDown);
             hook.KeyReleased += new EventHandler<KeyboardHookEventArgs>(KeyUp);
             hook.RunAsync();
@@ -100,6 +102,10 @@ namespace Calcuhandy {
                     HotkeyHide(this, EventArgs.Empty);
                     break;
             }
+        }
+        public void SimulateAltKeyTap() {
+            sim.SimulateKeyPress(SharpHook.Native.KeyCode.VcLeftAlt);
+            sim.SimulateKeyRelease(SharpHook.Native.KeyCode.VcLeftAlt);
         }
     }
 }

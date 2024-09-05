@@ -54,19 +54,16 @@ namespace Calcuhandy {
                 if(mainWindow == null) return;
                 if(source?.GetType() == typeof(TrayIcon)) SetWindowToCursor(mainWindow, 0.5, 0.5);
                 else SetWindowToCursor(mainWindow);
-
-                if(!mainWindow.IsEffectivelyVisible) {
-                    mainWindow.Show();
-                    mainWindow.Focus();
-                    mainWindow.GetControl<TextBox>("calcInput")?.Focus();
-                }
+                mainWindow.Show();
+                ProgramHotkeys.manager.SimulateAltKeyTap();
+                mainWindow.Activate();
             });
         }
         private void SetWindowToCursor(Window window, double? forceX = null, double? forceY = null) {
             if(window == null) return;
 
             //PixelPoint cursorPos = new(ProgramHotkeys.manager.mouseX, ProgramHotkeys.manager.mouseY);
-            PixelPoint cursorPos = CursorUtils.GetCursorPosition();
+            PixelPoint cursorPos = Utils.GetCursorPosition();
             PixelRect screenBounds = window.Screens.ScreenFromPoint(cursorPos)?.Bounds ?? new PixelRect(0, 0, 800, 600);
             //window.Width = screenBounds.Width * 0.5;
 

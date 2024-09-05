@@ -12,15 +12,19 @@ namespace Calcuhandy.Views {
             calcInput.TextChanged += new System.EventHandler<TextChangedEventArgs>(UpdateResult);
             calcInput.KeyDown += new System.EventHandler<KeyEventArgs>(InputHotkeys);
             Loaded += HideWindow;
+            Activated += FocusInputBox;
         }
 
         public void ClearInputBox(object? source, RoutedEventArgs args) {
             calcInput.Text = "";
-            calcInput.Focus();
+            calcInput.Focus(NavigationMethod.Pointer);
         }
         public void HideWindow(object? source, EventArgs args) {
             Hide();
             ProcessOptimizer.Rest();
+        }
+        public void FocusInputBox(object? source, EventArgs args) {
+            calcInput.Focus();
         }
         public void UpdateResult(object? source, TextChangedEventArgs args) {
             calcOutput.Text = EquationParser.ParseText(calcInput.Text);
