@@ -13,6 +13,7 @@ namespace Calcuhandy.Views {
             calcInput.KeyDown += new System.EventHandler<KeyEventArgs>(InputHotkeys);
             Loaded += HideWindow;
             Activated += FocusInputBox;
+            UpdateResult(this, EventArgs.Empty);
         }
 
         public void ClearInputBox(object? source, RoutedEventArgs args) {
@@ -26,7 +27,7 @@ namespace Calcuhandy.Views {
         public void FocusInputBox(object? source, EventArgs args) {
             calcInput.Focus();
         }
-        public void UpdateResult(object? source, TextChangedEventArgs args) {
+        public void UpdateResult(object? source, EventArgs args) {
             calcOutput.Text = EquationParser.ParseText(calcInput.Text);
             if(calcOutput.Text.ToLower().Contains("error")) calcOutput.Opacity = 0.25;
             else calcOutput.Opacity = 1.0;

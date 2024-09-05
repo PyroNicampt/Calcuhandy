@@ -33,7 +33,10 @@
 			<Button Click="ClearInputBox" DockPanel.Dock="Right" CornerRadius="0">Clear</Button>
 			<TextBox Name="calcInput" CornerRadius="0"></TextBox>
 		</DockPanel>
-		<TextBlock Name="calcOutput" Margin="7 1 7 4" FontSize="18">0</TextBlock>
+		<DockPanel Opacity="0.8">
+			<TextBlock FontSize="18" Margin="7 1 1 4" DockPanel.Dock="Left">=</TextBlock>
+			<TextBlock Name="calcOutput" Margin="0 1 7 4" FontSize="18">0</TextBlock>
+		</DockPanel>
 	</DockPanel>
 	<!--Grid ShowGridLines="True"  Margin="5"
       ColumnDefinitions="444, 100"

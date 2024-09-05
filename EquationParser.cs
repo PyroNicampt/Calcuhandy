@@ -74,6 +74,7 @@ namespace Calcuhandy {
         public static string ParseText(string? input) {
             try {
                 string result = ParseToDouble(input).ToString();
+                if(input == null || input == "") result = "";
                 //return errorQueue.Count > 0 ? errorQueue.Peek() : string.Join(" ", elements);
                 return errorQueue.Count > 0 ? errorQueue.Peek() : result;
             } catch(Exception e) {
@@ -81,9 +82,8 @@ namespace Calcuhandy {
             }
         }
         public static double ParseToDouble(string? input) {
-            if(input == null) return double.NaN;
-            if(input == "") return 0.0;
             errorQueue.Clear();
+            if(input == null) return double.NaN;
 
             List<Token> elements = Tokenize(input.ToLower());
             SyntaxCleaner(ref elements);
