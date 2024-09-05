@@ -1,5 +1,5 @@
 # Calcuhandy
- A desktop equation evaluator powered by [Avalonia](https://github.com/avaloniaui/avalonia), inspired by the live equation parsing in most browser consoles and the Quick Search's calculator functionality in the game [Satisfactory](https://www.satisfactorygame.com/).
+ A desktop equation evaluator powered by [Avalonia](https://github.com/avaloniaui/avalonia), inspired by the live equation parsing in most browser consoles, Blender's in-field python interpreter, and the Quick Search's calculator functionality in the game Satisfactory.
 
 ## Compiling
 Requires [.NET CLI](https://learn.microsoft.com/en-us/dotnet/core/install/)
@@ -15,7 +15,8 @@ Currently requires [.NET 8.0](https://dotnet.microsoft.com/en-us/download/dotnet
 - Escape or click out to exit.
 - Enter copies the output to the clipboard.
 
-| Operator | Action |
+### Operators
+| Syntax | Action |
 | --- | --- |
 | + | Add |
 | - | Subtract (or negative) |
@@ -25,9 +26,10 @@ Currently requires [.NET 8.0](https://dotnet.microsoft.com/en-us/download/dotnet
 | ^ | Power |
 | \( \) \, | Grouping |
 
-| Function | Description |
+### Functions
+#### Basic Functions
+| Syntax | Description |
 | --- | --- |
-| | ***Basic Functions*** |
 | abs(x) | Absolute value |
 | sqrt(x) | Square Root |
 | cbrt(x) | Cube Root |
@@ -41,7 +43,9 @@ Currently requires [.NET 8.0](https://dotnet.microsoft.com/en-us/download/dotnet
 | sign(x) | 1 if x greater than zero, -1 if x less than zero, 0 if x is zero |
 | clamp(x,y,z) | Clamp x between y and z inclusive |
 | inverse(x) | multiplies by -1. The same as prefixing with a - |
-| | ***Trigonometry*** |
+#### Trigonometry Functions
+| Syntax | Description |
+| --- | --- |
 | sin(x) | Sine |
 | cos(x) | Cosine |
 | tan(x) | Tangent |
@@ -55,12 +59,15 @@ Currently requires [.NET 8.0](https://dotnet.microsoft.com/en-us/download/dotnet
 | asinh(x) | Hyperbolic Arcsine |
 | acosh(x) | Hyperbolic Arccosine |
 | atanh(x) | Hyperbolic Arctangent |
-| | ***Logarithms*** |
+#### Logarithm Functions
+| Syntax | Description |
+| --- | --- |
 | log10(x) | Base 10 Logarithm of x |
 | log2(x) | Base 2 Logarithm of x |
 | log(x) | Logarithm of x |
 
-| Constant | Description |
+### Constants
+| Syntax | Description |
 | --- | --- |
 | pi | 3.14159265358979... |
 | tau | 6.28318530717958... |
