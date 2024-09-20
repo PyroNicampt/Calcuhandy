@@ -1,3 +1,5 @@
+#addin nuget:?package=Cake.VersionReader&version=5.1.0.0
+
 var target = Argument("target", "Zip");
 var settings = new DotNetPublishSettings
 {
@@ -6,7 +8,8 @@ var settings = new DotNetPublishSettings
     Framework = Argument("framework", "net8.0"),
 };
 var publishDir = $"./bin/{settings.Configuration}/{settings.Framework}/{settings.Runtime}/publish";
-var zipPath = $"./releases/Calcuhandy-{settings.Runtime}-{settings.Configuration}.zip";
+var zipPath = $"./releases/Calcuhandy-{settings.Runtime}-{settings.Configuration}";
+var executableName = "Calcuhandy.exe";
 
 //////////////////////////////////////////////////////////////////////
 // TASKS
@@ -31,7 +34,8 @@ Task("Zip")
     .Does(() =>
 {
     EnsureDirectoryExists("./releases/");
-    Zip(publishDir, zipPath);
+    var version = GetVersionNumber($"{publishDir}/{executableName}");
+    Zip(publishDir, $"{zipPath}-{version}.zip");
 });
 
 Task("DebugBuild")
