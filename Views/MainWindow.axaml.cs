@@ -7,12 +7,14 @@ using System.Diagnostics;
 
 namespace Calcuhandy.Views {
     public partial class MainWindow : Window {
+        static string storedInput = "";
         public MainWindow() {
             InitializeComponent();
             calcInput.TextChanged += new System.EventHandler<TextChangedEventArgs>(UpdateResult);
             calcInput.KeyDown += new System.EventHandler<KeyEventArgs>(InputHotkeys);
-            Loaded += HideWindow;
             Activated += FocusInputBox;
+            Closed += StoreInput;
+            calcInput.Text = storedInput;
             UpdateResult(this, EventArgs.Empty);
         }
 
@@ -21,16 +23,20 @@ namespace Calcuhandy.Views {
             calcInput.Focus(NavigationMethod.Pointer);
         }
         public void HideWindow(object? source, EventArgs args) {
-            Hide();
+            Close();
             ProcessOptimizer.Rest();
         }
         public void FocusInputBox(object? source, EventArgs args) {
             calcInput.Focus();
+            calcInput.SelectAll();
         }
         public void UpdateResult(object? source, EventArgs args) {
             calcOutput.Text = EquationParser.ParseText(calcInput.Text);
             if(calcOutput.Text.ToLower().Contains("error")) calcOutput.Opacity = 0.25;
             else calcOutput.Opacity = 1.0;
+        }
+        public void StoreInput(object? source, EventArgs args) {
+            if(calcInput.Text != null) storedInput = calcInput.Text;
         }
         public void InputHotkeys(object? source, KeyEventArgs args) {
             if(args.Key == Key.Enter) {

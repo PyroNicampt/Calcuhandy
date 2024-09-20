@@ -16,7 +16,6 @@ using System.Runtime.CompilerServices;
 
 namespace Calcuhandy {
     public partial class App : Application {
-        static Window? mainWindow;
         public override void Initialize() {
             AvaloniaXamlLoader.Load(this);
             ProgramHotkeys.Init();
@@ -26,13 +25,9 @@ namespace Calcuhandy {
                 // Line below is needed to remove Avalonia data validation.
                 // Without this line you will get duplicate validations from both Avalonia and CT
                 BindingPlugins.DataValidators.RemoveAt(0);
-                desktop.MainWindow = new MainWindow {
-                    DataContext = new MainWindowViewModel(),
-                };
-                mainWindow = desktop.MainWindow;
+                desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
                 //Events
-                mainWindow.Deactivated += HideApp;
                 ProgramHotkeys.manager.HotkeyHide += HideApp;
                 ProgramHotkeys.manager.HotkeyOpen += ShowApp;
             }
@@ -40,7 +35,9 @@ namespace Calcuhandy {
             base.OnFrameworkInitializationCompleted();
         }
         public void CloseApp(object? source, EventArgs args) {
-            Dispatcher.UIThread.InvokeAsync(() => mainWindow?.Close());
+            if(ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
+                desktop.Shutdown();
+            }
         }
         public void ShowApp(object? source, EventArgs args) {
             /* Look into other options first, this seems like a lot of faff
@@ -50,14 +47,21 @@ namespace Calcuhandy {
                 }
             }*/
             ProcessOptimizer.Wakeup();
-            Dispatcher.UIThread.InvokeAsync(() => {
-                if(mainWindow == null) return;
-                if(source?.GetType() == typeof(TrayIcon)) SetWindowToCursor(mainWindow, 0.5, 0.5);
-                else SetWindowToCursor(mainWindow);
-                mainWindow.Show();
-                ProgramHotkeys.manager.SimulateAltKeyTap();
-                mainWindow.Activate();
-            });
+            if(ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
+                Dispatcher.UIThread.InvokeAsync(() => {
+                    if(desktop.MainWindow == null) {
+                        desktop.MainWindow = new MainWindow {
+                            DataContext = new MainWindowViewModel(),
+                        };
+                        desktop.MainWindow.Deactivated += HideApp;
+                        desktop.MainWindow.Show();
+                    }
+                    if(source?.GetType() == typeof(TrayIcon)) SetWindowToCursor(desktop.MainWindow, 0.5, 0.5);
+                    else SetWindowToCursor(desktop.MainWindow);
+                    ProgramHotkeys.manager.SimulateAltKeyTap();
+                    desktop.MainWindow.Activate();
+                });
+            }
         }
         private void SetWindowToCursor(Window window, double? forceX = null, double? forceY = null) {
             if(window == null) return;
@@ -80,7 +84,14 @@ namespace Calcuhandy {
             window.Position = new PixelPoint((int)correctX, (int)correctY);
         }
         public void HideApp(object? source, EventArgs args) {
-            Dispatcher.UIThread.InvokeAsync(() => mainWindow?.Hide());
+            if(ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
+                Dispatcher.UIThread.InvokeAsync(() => {
+                    if(desktop.MainWindow != null) {
+                        desktop.MainWindow.Close();
+                        desktop.MainWindow = null;
+                    }
+                });
+            }
             ProcessOptimizer.Rest();
         }
     }
